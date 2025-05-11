@@ -10,12 +10,11 @@ image:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
-before_script:
-  #- export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
-  #- export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-  - export AWS_DEFAULT_REGION="eu-west-3" 
-  - terraform --version
+script:
+  - echo $AWS_ACCESS_KEY_ID
+  - echo $AWS_SECRET_ACCESS_KEY | sed 's/./&*/g'  # Masque le secret
   - terraform init
+
 
 validate:
   stage: validate
