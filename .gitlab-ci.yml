@@ -1,5 +1,8 @@
 stages:
   - validate
+  - plan
+  - apply
+  - destroy
  
 image: 
   name: hashicorp/terraform:latest
@@ -19,3 +22,30 @@ validate:
   script:
     - echo "Validation Terraform..."
     - terraform validate
+
+plan:
+  stage: plan
+  script:
+    - terraform plan -out=tfplan
+  artifacts:
+    paths:
+      - tfplan
+  only:
+    - terraform-aws
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -auto-approve tfplan
+  dependencies:
+    - plan
+  only:
+    - terraform-aws
+
+destroy:
+  stage: destroy
+  script:
+    - terraform destroy -auto-approve
+  when: manual
+  only:
+    - terraform-aws
