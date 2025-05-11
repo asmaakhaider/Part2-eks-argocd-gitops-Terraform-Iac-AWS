@@ -11,8 +11,8 @@ image:
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 before_script:
-  - export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
-  - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  #- export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+  #- export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   - export AWS_DEFAULT_REGION="eu-west-3" 
   - terraform --version
   - terraform init
