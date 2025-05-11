@@ -10,9 +10,9 @@ image:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   script:
-  - echo $AWS_ACCESS_KEY_ID
-  - echo $AWS_SECRET_ACCESS_KEY | sed 's/./&*/g'  # Masque le secret
-  - terraform init
+    - echo $AWS_ACCESS_KEY_ID
+    - echo $AWS_SECRET_ACCESS_KEY | sed 's/./&*/g'  # Masque le secret
+    - terraform init
 
 
 
