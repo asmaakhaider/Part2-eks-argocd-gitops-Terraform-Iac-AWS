@@ -1,50 +1,21 @@
 stages:
   - validate
-  - plan
-  - apply
-  - destroy
-
-image:
-  name: hashicorp/terraform:light
-  entrypoint:
-    - "/bin/sh"
-    - "-c"
+ 
+image: 
+  name: hashicorp/terraform:latest
+  entrypoint: ["sh", "-c"]
 
 before_script:
-  - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-  - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-  - export AWS_DEFAULT_REGION=eu-west-3
-  - terraform --version
+  - apk add --no-cache aws-cli
+  - echo "Vérification des credentials AWS"
+  - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+  - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+  - aws configure set region "$AWS_DEFAULT_REGION"
+  - echo "Initialisation de Terraform..."
   - terraform init
 
 validate:
   stage: validate
   script:
+    - echo "Validation Terraform..."
     - terraform validate
-
-plan:
-  stage: plan
-  script:
-    - terraform plan -out=tfplan
-  artifacts:
-    paths:
-      - tfplan
-  only:
-    - terraform-aws
-
-apply:
-  stage: apply
-  script:
-    - terraform apply -auto-approve tfplan
-  dependencies:
-    - plan
-  only:
-    - terraform-aws
-
-destroy:
-  stage: destroy
-  script:
-    - terraform destroy -auto-approve
-  when: manual
-  only:
-    - terraform-aws
