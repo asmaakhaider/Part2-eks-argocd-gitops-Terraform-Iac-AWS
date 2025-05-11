@@ -9,13 +9,12 @@ image:
   entrypoint:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-  script:
-    - echo $AWS_ACCESS_KEY_ID
-    - echo $AWS_SECRET_ACCESS_KEY | sed 's/./&*/g'  # Masque le secret
-    - terraform init
 
-
-
+before_script:
+  - terraform --version
+  - echo "AWS Access Key: $AWS_ACCESS_KEY_ID"
+  - echo "AWS Secret Key: ${AWS_SECRET_ACCESS_KEY:0:4}****************"
+  - terraform init
 
 validate:
   stage: validate
@@ -30,8 +29,7 @@ plan:
     paths:
       - tfplan
   only:
-      - terraform-aws
-
+    - terraform-aws
 
 apply:
   stage: apply
@@ -40,16 +38,12 @@ apply:
   dependencies:
     - plan
   only:
-      - terraform-aws
+    - terraform-aws
 
 destroy:
   stage: destroy
   script:
-    - terraform init 
     - terraform destroy -auto-approve
   when: manual
-  dependencies: 
-    - apply
   only:
-      - terraform-aws
-
+    - terraform-aws
