@@ -24,3 +24,7 @@ output "eks_cluster_endpoint" {
   value = aws_eks_cluster.eks_cluster.endpoint
 }
 
+output "eks_worker_sg_id" {
+  value = aws_security_group.eks_worker_sg.id
+}
+
