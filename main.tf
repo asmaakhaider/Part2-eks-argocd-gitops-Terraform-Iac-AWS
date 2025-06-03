@@ -13,6 +13,7 @@ module "eks" {
   private_subnet_b_id = module.networking.private_subnet_b_id
   
 
+  
 }
 
 #Appel module bastion
@@ -23,9 +24,22 @@ module "bastion" {
   eks_worker_sg_id = module.eks.eks_worker_sg_id
   bastion_sg_id = module.bastion.bastion_sg_id  # ou une autre source correcte
   eks_cluster_name  = module.eks.eks_cluster_name
-
-
+  private_key_path  = "${path.module}/key-bastion.pem"
 }
+
+
+# appel du module ingress
+module "ingress" {
+  source        = "./modules/ingress"
+  eks_cluster_name = module.eks.eks_cluster_name
+  aws_region   = "eu-west-3" # ou utilisez une variable
+  vpc_id       = module.networking.vpc_id
+  eks_cluster_endpoint = module.eks.eks_cluster_endpoint
+  eks_cluster_ca   = module.eks.eks_cluster_ca
+  depends_on = [module.eks, module.bastion]
+  
+}
+
 
 # Appel module rds
 module "rds" {

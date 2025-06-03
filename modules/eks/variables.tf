@@ -25,7 +25,7 @@ variable "private_subnet_b_id" {
 variable "instance_type" {
   description = "Types d'instances pour les nodes EKS"
   type        = list(string)
-  default     = ["t2.micro"]
+  default     = ["t3a.medium"]
 }
 
 variable "eks_desired_worker_node" {

@@ -17,30 +17,16 @@ variable "instance_type" {
   type        = string
   default     = "t2.micro"
 }
-
-
 variable "key_name" {
   description = "nom de la clef du serveur pour nous connecter en ssh sur celui-ci"
   type        = string
   default     = "key-bastion"
 
 }
-variable "EC2_min_size" {
-  description = "Taille minimale du groupe Auto Scaling"
-  type        = number
-  default     = 1
-}
 
-variable "EC2_desired_bastion" {
-  description = "Capacité désirée du Bastion Host"
-  type        = number
-  default     = 1
-}
-
-variable "EC2_max_size" {
-  description = "Taille maximale du groupe Auto Scaling"
-  type        = number
-  default     = 2
+variable "private_key_path" {
+  description = "Chemin vers la clé privée pour se connecter en SSH au Bastion"
+  type        = string
 }
 
 variable "bastion_sg_id" {

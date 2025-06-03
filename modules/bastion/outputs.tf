@@ -3,4 +3,12 @@ output "bastion_sg_id" {
 }
 output "bastion_role_name" {
   value = aws_iam_role.bastion_role.name
+
 }
+output "bastion_public_ip" {
+  description = "Adresse IP publique de la bastion host"
+  value       = aws_instance.bastion.public_ip
+}
+
+
+

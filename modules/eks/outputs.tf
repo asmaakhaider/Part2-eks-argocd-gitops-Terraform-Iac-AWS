@@ -28,3 +28,13 @@ output "eks_worker_sg_id" {
   value = aws_security_group.eks_worker_sg.id
 }
 
+
+output "eks_node_role_arn" {
+  description = "ARN du rôle IAM attaché aux worker nodes"
+  value       = aws_iam_role.eks_node_role.arn
+}
+#############################################################""
+output "eks_worker_iam_role_name" {
+  description = "Name of the IAM role for EKS worker nodes"
+  value       = aws_iam_role.eks_node_role.name
+}

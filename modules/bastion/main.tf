@@ -1,6 +1,5 @@
-#################################
 # EC2  bastion host 
-################################
+###################################################################""
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]
@@ -11,9 +10,6 @@ data "aws_ami" "amazon_linux_2" {
   }
 }
 
-
-################################################################################
-# Bastion host avec  autoscaling Group
 ###############################################################################
 # Security Group pour Bastion Host
 resource "aws_security_group" "bastion_sg" {
@@ -40,19 +36,24 @@ resource "aws_security_group" "bastion_sg" {
   }
 }
 
-# Launch Template pour Bastion Host
-resource "aws_launch_template" "bastion_launch_template" {
-  name          = "bastion-launch-template"
-  image_id      = data.aws_ami.amazon_linux_2.id  # AMI Amazon Linux 2
-  instance_type = var.instance_type  # Taille de l'instance Bastion
-  key_name      = var.key_name  # Clé SSH pour accès Bastion
-  
-  iam_instance_profile {
-    name = aws_iam_instance_profile.bastion_instance_profile.name
-  }
+#####################################################################################
+# Bastion host avec  autoscaling Group
+resource "aws_instance" "bastion" {
+  ami                         = data.aws_ami.amazon_linux_2.id
+  instance_type               = var.instance_type
+  subnet_id                   = var.public_subnet_a_id
+  vpc_security_group_ids     = [aws_security_group.bastion_sg.id]
 
-  user_data = base64encode(<<-EOF
-#!/bin/bash
+  associate_public_ip_address = true
+  key_name                    = var.key_name
+  #Bastion EC2 doit disposer d'un rôle IAM aussi pour pouvoir interagir avec EKS!
+  iam_instance_profile = aws_iam_instance_profile.bastion_instance_profile.name
+
+
+  #install kubectl, AWS ClI on Bastion
+
+  user_data = <<-EOF
+  #!/bin/bash
 
 set -e
 
@@ -78,63 +79,61 @@ echo "[INFO] Installation de kubectl dans /usr/local/bin..."
 chmod +x ./kubectl
 mv ./kubectl /usr/local/bin/kubectl
 
+# Installer Helm
+echo "[INFO] Installation de Helm..."
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+helm version --short
+
 # Configuration kubeconfig automatique (optionnel)
 # export CLUSTER_NAME="my-private-eks"
 # aws eks update-kubeconfig --name \$CLUSTER_NAME --region eu-west-3
 echo "user_data exécuté avec succès."
 EOF
-)
 
-  network_interfaces {
-    associate_public_ip_address = true  # Le Bastion Host a besoin d'une IP publique
-    security_groups             = [aws_security_group.bastion_sg.id]  # Associe le Security Group
-    subnet_id                   = var.public_subnet_a_id  # Déploie dans un sous-réseau public
+  # Donner à Terraform le temps de laisser EC2 se lancer proprement
+  timeouts {
+    create = "10m"
+  }
+  tags = {
+    Name = "${var.namespace}-bastion-host"
   }
 
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name = "${var.namespace}-bastion"
-    }
+
+}
+resource "null_resource" "install_argocd" {
+  depends_on = [aws_instance.bastion]
+  triggers = {
+    always_run = timestamp()
+  }
+
+
+  connection {
+    type        = "ssh"
+    host        = aws_instance.bastion.public_ip
+    user        = "ec2-user"
+    private_key = file(var.private_key_path)
+    timeout     = "20m"
+    agent       = false
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../../scripts/install-argocd.sh"
+    destination = "/tmp/install-argocd.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo '[INFO] Attente 60s pour laisser EC2 se stabiliser...'",
+      "sleep 60",
+      "chmod +x /tmp/install-argocd.sh",
+      "bash /tmp/install-argocd.sh"
+    ]
   }
 }
 
-# Auto Scaling Group pour Bastion Host
-resource "aws_autoscaling_group" "bastion_asg" {
-  name                      = "bastion-asg"
-  vpc_zone_identifier       = [var.public_subnet_a_id]  # Déploie dans un sous-réseau public
-  min_size                  = var.EC2_min_size # Minimum 1 Bastion Host
-  desired_capacity          = var.EC2_desired_bastion# Capacité désirée de 1 Bastion Host
-  max_size                  = var.EC2_max_size # Maximum 2 Bastion Hosts
-  health_check_grace_period = 300
-  health_check_type         = "EC2"
-  force_delete              = true
 
-  launch_template {
-    id      = aws_launch_template.bastion_launch_template.id
-    version = "$Latest"
-  }
-
-  tag {
-    key                 = "Name"
-    value               = "${var.namespace}-bastion"
-    propagate_at_launch = true
-  }
-}
-
-# Ajouter un sg rule pour permettre à bastion de se connecter à EKS
-
-resource "aws_security_group_rule" "allow_bastion_to_eks" {
-  type                     = "ingress"
-  from_port                = 22
-  to_port                  = 22
-  protocol                 = "tcp"
-  security_group_id = var.eks_worker_sg_id
-  source_security_group_id       = var.bastion_sg_id
-  description              = "Allow SSH from Bastion to EKS Worker Nodes"
-}
-#######################################
-# Rôle IAM pour le Bastion
 #####################################
 # Rôle IAM pour le Bastion
 resource "aws_iam_role" "bastion_role" {
@@ -205,5 +204,4 @@ resource "aws_eks_access_policy_association" "bastion_admin" {
     # namespaces = ["*"] # Accès à tous les namespaces
   }
 }
-
 

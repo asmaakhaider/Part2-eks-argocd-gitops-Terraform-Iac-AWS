@@ -41,6 +41,7 @@ resource "aws_eks_cluster" "eks_cluster" {
     subnet_ids              = [var.private_subnet_a_id, var.private_subnet_b_id]
     endpoint_private_access = true # Accès privé au cluster
     endpoint_public_access  = true
+    public_access_cidrs     = ["176.148.244.129/32"]
     #public_access_cidrs     = var.allowed_ips # Restriction sur les IP autorisées
     # Add security groups
     security_group_ids = [aws_security_group.eks_control_plane_sg.id, aws_security_group.eks_worker_sg.id]
@@ -278,8 +279,63 @@ resource "aws_security_group_rule" "allow_worker_to_cp" {
   source_security_group_id = aws_security_group.eks_worker_sg.id
 }
 
+#######################################################
+# politiques IAM pour ingress controller
+#######################################################
+resource "aws_iam_policy" "ingress_controller_policy" {
+  name        = "eshop-eks-ingress-controller-policy"
+  description = "Permissions for ingress controller to manage AWS resources"
 
-
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
+          "ec2:DescribeVpcs",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeRules",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:DeregisterTargets",
+          "elasticloadbalancing:SetWebAcl",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:AddListenerCertificates",
+          "elasticloadbalancing:RemoveListenerCertificates",
+          "elasticloadbalancing:ModifyRule",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:SetIpAddressType",
+          "elasticloadbalancing:SetSecurityGroups",
+          "elasticloadbalancing:SetSubnets"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+# attacher cette politique au rôle des worker nodes 
+resource "aws_iam_role_policy_attachment" "ingress_controller" {
+  policy_arn = aws_iam_policy.ingress_controller_policy.arn
+  role       = aws_iam_role.eks_node_role.name
+}
 
 
 
