@@ -1,0 +1,4 @@
+apiVersion: v2
+name: clusterissuer
+description: Helm chart to deploy ClusterIssuer for cert-manager
+version: 0.1.0

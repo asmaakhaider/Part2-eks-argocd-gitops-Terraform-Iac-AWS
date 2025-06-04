@@ -194,6 +194,7 @@ resource "aws_security_group" "eks_control_plane_sg" {
     from_port   = var.ingress_Control_plane_and_WkNodes_port_SG
     to_port     = var.ingress_Control_plane_and_WkNodes_port_SG
     protocol    = "tcp"
+    cidr_blocks = ["176.148.244.129/32"]
    
   }
 
@@ -336,8 +337,6 @@ resource "aws_iam_role_policy_attachment" "ingress_controller" {
   policy_arn = aws_iam_policy.ingress_controller_policy.arn
   role       = aws_iam_role.eks_node_role.name
 }
-
-
 
 
 

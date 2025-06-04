@@ -21,11 +21,10 @@ variable "eks_cluster_ca" {
   type        = string
 }
 
-variable "namespace" {
-  description = "Namespace pour installer nginx-ingress"
-  type        = string
-  default     = "ingress-nginx"
-}
 
+variable "cluster_issuer_name" {
+  description = "Nom du cluster issuer à utiliser pour cert-manager"
+  type        = string
+}
 
 

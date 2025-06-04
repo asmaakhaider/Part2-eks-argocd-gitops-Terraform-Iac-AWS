@@ -36,8 +36,20 @@ module "ingress" {
   vpc_id       = module.networking.vpc_id
   eks_cluster_endpoint = module.eks.eks_cluster_endpoint
   eks_cluster_ca   = module.eks.eks_cluster_ca
-  depends_on = [module.eks, module.bastion]
+  depends_on = [module.eks, module.cert_manager]
+  cluster_issuer_name = module.cert_manager.cluster_issuer_name
   
+  
+}
+
+# apple du module cert_manager
+
+module "cert_manager" {
+  source = "./modules/cert_manager"
+  eks_cluster_name = module.eks.eks_cluster_name
+  cluster_issuer_name    = "letsencrypt-asmaa"
+  
+
 }
 
 
@@ -64,5 +76,6 @@ module "elasticache" {
   private_subnet_a_id        = module.networking.private_subnet_a_id
   private_subnet_b_id        = module.networking.private_subnet_b_id
 }
+
 
 
