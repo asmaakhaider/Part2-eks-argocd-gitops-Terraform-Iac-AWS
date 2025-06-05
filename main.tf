@@ -53,6 +53,15 @@ module "cert_manager" {
 }
 
 
+# apple du module prometheus_grafana
+module "prometheus_grafana" {
+  source = "./modules/prometheus_grafana"
+  
+
+}
+
+
+
 # Appel module rds
 module "rds" {
   source              = "./modules/rds"

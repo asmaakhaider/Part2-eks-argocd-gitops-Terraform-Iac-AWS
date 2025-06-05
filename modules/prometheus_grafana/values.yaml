@@ -1,0 +1,26 @@
+# values.yaml
+prometheus:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-asmaa
+    hosts:
+      - prometheus.khaider.asmaa.cloudns.ch
+    ingressClassName: nginx
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+          - prometheus.khaider.asmaa.cloudns.ch
+
+grafana:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-asmaa
+    hosts:
+      - grafana.khaider.asmaa.cloudns.ch
+    ingressClassName: nginx
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.khaider.asmaa.cloudns.ch
