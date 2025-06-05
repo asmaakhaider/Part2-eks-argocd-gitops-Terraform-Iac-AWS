@@ -60,6 +60,13 @@ module "prometheus_grafana" {
 
 }
 
+# apple du module velero
+module "velero" {
+  source = "./modules/velero"
+  
+
+}
+
 
 
 # Appel module rds
