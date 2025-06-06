@@ -1,0 +1,16 @@
+# modules/argocd/values.yaml
+applications:
+  - name: eshop  
+    namespace: argocd
+    project: default
+    source:
+      repoURL: "https://gitlab.com/eks-argocd-gitops-terraform/eshop-app.git"
+      targetRevision: gitlab-ci  
+      path: "deployment/QA"  
+    destination:
+      server: "https://kubernetes.default.svc"
+      namespace: eshop-oncontainer
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true

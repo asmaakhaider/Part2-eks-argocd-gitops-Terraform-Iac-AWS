@@ -102,7 +102,7 @@ EOF
 
 
 }
-resource "null_resource" "install_argocd" {
+resource "null_resource" "install_all" {
   depends_on = [aws_instance.bastion]
   triggers = {
     always_run = timestamp()
@@ -114,7 +114,7 @@ resource "null_resource" "install_argocd" {
     host        = aws_instance.bastion.public_ip
     user        = "ec2-user"
     private_key = file(var.private_key_path)
-    timeout     = "20m"
+    timeout     = "30m"
     agent       = false
   }
 
@@ -205,3 +205,12 @@ resource "aws_eks_access_policy_association" "bastion_admin" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "eks_service_policy" {
+  role       = aws_iam_role.bastion_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
+  role       = aws_iam_role.bastion_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}

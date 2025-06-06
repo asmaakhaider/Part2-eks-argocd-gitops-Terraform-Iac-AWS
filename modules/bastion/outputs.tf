@@ -11,4 +11,8 @@ output "bastion_public_ip" {
 }
 
 
+output "bastion_admin_policy_arn" {
+  value = aws_eks_access_policy_association.bastion_admin.id
+}
+
 

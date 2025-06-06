@@ -31,16 +31,20 @@ module "bastion" {
 # appel du module ingress
 module "ingress" {
   source        = "./modules/ingress"
-  eks_cluster_name = module.eks.eks_cluster_name
-  aws_region   = "eu-west-3" # ou utilisez une variable
-  vpc_id       = module.networking.vpc_id
-  eks_cluster_endpoint = module.eks.eks_cluster_endpoint
-  eks_cluster_ca   = module.eks.eks_cluster_ca
-  depends_on = [module.eks, module.cert_manager]
-  cluster_issuer_name = module.cert_manager.cluster_issuer_name
+ 
   
+  depends_on = [module.eks]
+
   
 }
+# apple du module argocd
+
+module "argocd" {
+  source = "./modules/argocd"
+  #depends_on = [module.eks]
+ 
+}
+
 
 # apple du module cert_manager
 

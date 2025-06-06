@@ -1,0 +1,15 @@
+# modules/argocd/values.yaml
+server:
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-asmaa"
+    hosts:
+      - argocd.khaider.asmaa.cloudns.ch
+    ingressClassName: nginx
+    tls:
+      - secretName: argocd-tls
+        hosts:
+          - argocd.khaider.asmaa.cloudns.ch

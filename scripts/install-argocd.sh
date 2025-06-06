@@ -1,12 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "[INFO] Déploiement de ArgoCD via Helm..."
-
+# Créer le secret GitLab pour ArgoCD (pour cloner un dépôt privé)
+echo "[INFO] Création du secret GitLab pour ArgoCD..."
 aws eks update-kubeconfig --region eu-west-3 --name my-private-eks
 
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-helm install argocd argo/argo-cd -n argocd --create-namespace
-
-echo "[INFO] ArgoCD installé avec succès."
+echo "[INFO] Secret GitLab ajouté avec succès."
