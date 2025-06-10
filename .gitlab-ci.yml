@@ -19,12 +19,20 @@ before_script:
 
 validate:
   stage: validate
+  tags:
+  - fedora
+  - local-runner
+
   script:
     - echo "Validation Terraform..."
     - terraform validate
 
 plan:
   stage: plan
+  tags:
+  - fedora
+  - local-runner
+
   script:
     - terraform plan -out=tfplan
   artifacts:
@@ -36,6 +44,9 @@ plan:
 
 apply:
   stage: apply
+  tags:
+  - fedora
+  - local-runner
   script:
     - terraform apply -auto-approve tfplan
   dependencies:
@@ -46,6 +57,10 @@ apply:
 
 apply_modules:
   stage: apply
+  tags:
+  - fedora
+  - local-runner
+
   script:
     - terraform apply -target=module.rds -auto-approve
     - terraform apply -target=module.ingress -auto-approve
@@ -58,6 +73,10 @@ apply_modules:
 
 destroy:
   stage: destroy
+  tags:
+  - fedora
+  - local-runner
+
   script:
     - terraform destroy -auto-approve
   when: manual
@@ -68,6 +87,10 @@ destroy:
   
 rm-state:
   stage: destroy
+  tags:
+  - fedora
+  - local-runner
+
   script:
     - terraform state rm module.ingress.helm_release.nginx_ingress
     - terraform state rm module.rds.kubernetes_namespace.eshop
