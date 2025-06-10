@@ -30,8 +30,9 @@ plan:
   artifacts:
     paths:
       - tfplan
+  when: manual
   only:
-    - terraform-aws
+    - livrables
 
 apply:
   stage: apply
@@ -39,8 +40,9 @@ apply:
     - terraform apply -auto-approve tfplan
   dependencies:
     - plan
+  when: manual  
   only:
-    - terraform-aws
+    - livrables
 
 destroy:
   stage: destroy
@@ -48,4 +50,5 @@ destroy:
     - terraform destroy -auto-approve
   when: manual
   only:
-    - terraform-aws
+    - livrables
+    
