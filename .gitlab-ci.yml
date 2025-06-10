@@ -44,10 +44,33 @@ apply:
   only:
     - livrables
 
+apply_modules:
+  stage: apply
+  script:
+    - terraform apply -target=module.rds -auto-approve
+    - terraform apply -target=module.ingress -auto-approve
+
+  dependencies:
+    - plan
+  when: manual  
+  only:
+    - livrables    
+
 destroy:
   stage: destroy
   script:
     - terraform destroy -auto-approve
+  when: manual
+  only:
+    - livrables
+
+
+  
+rm-state:
+  stage: destroy
+  script:
+    - terraform state rm module.ingress.helm_release.nginx_ingress
+    - terraform state rm module.rds.kubernetes_namespace.eshop
   when: manual
   only:
     - livrables
