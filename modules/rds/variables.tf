@@ -90,3 +90,12 @@ variable "eks_security_group_id" {
   type        = string
 }
 
+variable "eks_cluster_endpoint" {
+  description = "eks cluster endpoint"
+  type        = string
+}
+variable "eks_cluster_ca" {
+  description = "eks cluster endpoint"
+  type        = string
+}
+

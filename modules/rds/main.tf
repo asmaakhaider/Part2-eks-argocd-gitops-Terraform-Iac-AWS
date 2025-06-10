@@ -33,9 +33,7 @@ resource "aws_db_instance" "postgresql" {
 ################################
 # Security group for RDS
 ##################################
-
 resource "aws_security_group" "rds_sg" {
-
   vpc_id      = var.vpc_id
   name        = "rds-security-group"
   description = "SecurityGroup for RDS instance"
@@ -71,4 +69,49 @@ resource "aws_security_group" "rds_sg" {
     Name = "${var.namespace}-sg-database"
   }
 }
+##################################################################################
+#  Création des Secrets Kubernetes pour lier mon application avec les DB de RDS
+################################################################################
+provider "kubernetes" {
+  alias                  = "local"
+  host                   = var.eks_cluster_endpoint
+  cluster_ca_certificate = base64decode(var.eks_cluster_ca)
+  config_path            = "~/.kube/config" # Utilise le kubeconfig local
+}
+# Crée le namespace
+resource "kubernetes_namespace" "eshop" {
+  provider = kubernetes.local
+  metadata {
+    name = "eshop-oncontainer"
+  }
 
+
+
+}
+resource "kubernetes_secret" "eshop_db_connection_strings" {
+  provider = kubernetes.local
+  metadata {
+    name      = "eshop-db-connection-strings"
+    namespace = "eshop-oncontainer"
+  }
+
+  data = {
+    ConnectionStrings__CatalogDB = base64encode(
+      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=catalog_db;Username=${var.database_user};Password=${var.database_password};"
+    )
+    ConnectionStrings__OrderingDB = base64encode(
+      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=ordering_db;Username=${var.database_user};Password=${var.database_password};"
+    )
+    ConnectionStrings__IdentityDB = base64encode(
+      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=identity_db;Username=${var.database_user};Password=${var.database_password};"
+    )
+    ConnectionStrings__WebhooksDB = base64encode(
+      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=webhooks_db;Username=${var.database_user};Password=${var.database_password};"
+    )
+  }
+  
+
+
+  type = "Opaque"
+}
+#########################################################

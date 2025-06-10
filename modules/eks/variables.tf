@@ -29,17 +29,17 @@ variable "instance_type" {
 }
 
 variable "eks_desired_worker_node" {
-  default     = 2
+  default     = 4
   description = "eks_desired_worker_node"
 }
 
 variable "eks_min_worker_node" {
-  default     = 1
+  default     = 2
   description = "eks_min_worker_node"
 }
 
 variable "eks_max_worker_node" {
-  default     = 3
+  default     = 5
   description = "eks_max_worker_node"
 }
 

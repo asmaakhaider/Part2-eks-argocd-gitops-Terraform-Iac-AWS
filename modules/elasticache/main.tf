@@ -24,3 +24,29 @@ resource "aws_elasticache_cluster" "basket_redis" {
   subnet_group_name    = aws_elasticache_subnet_group.redis_subnet.name
   security_group_ids   = [aws_security_group.redis_sg.id]
 }
+###############################################
+# relier Redis avec mon bascket-api 
+######################################
+provider "kubernetes" {
+  alias                  = "local"
+  host                   = var.eks_cluster_endpoint
+  cluster_ca_certificate = base64decode(var.eks_cluster_ca)
+  config_path            = "~/.kube/config"
+}
+
+resource "kubernetes_secret" "basket_redis_connection" {
+  provider = kubernetes.local
+  metadata {
+    name      = "basket-redis-connection"
+    namespace = "eshop-oncontainer"
+  }
+
+  data = {
+    REDIS_CONNECTION_STRING = base64encode(
+      "redis://${aws_elasticache_cluster.basket_redis.cache_nodes[0].address}:6379"
+    )
+  }
+
+  type = "Opaque"
+}
+

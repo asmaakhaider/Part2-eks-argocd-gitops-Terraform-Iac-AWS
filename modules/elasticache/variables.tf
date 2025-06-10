@@ -46,3 +46,12 @@ variable "redis_parameter_group_name" {
   type        = string
   default     = "default.redis7"
 }
+
+variable "eks_cluster_endpoint" {
+  description = "eks cluster endpoint"
+  type        = string
+}
+variable "eks_cluster_ca" {
+  description = "eks cluster endpoint"
+  type        = string
+}
