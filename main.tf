@@ -22,7 +22,7 @@ module "bastion" {
   vpc_id            = module.networking.vpc_id
   public_subnet_a_id  = module.networking.public_subnet_a_id
   eks_worker_sg_id = module.eks.eks_worker_sg_id
-  bastion_sg_id = module.bastion.bastion_sg_id  # ou une autre source correcte
+  bastion_sg_id = module.bastion.bastion_sg_id  
   eks_cluster_name  = module.eks.eks_cluster_name
   private_key_path  = "${path.module}/key-bastion.pem"
   depends_on = [module.eks]
@@ -89,6 +89,7 @@ module "rds" {
   eks_security_group_id = module.eks.eks_worker_sg_id
   eks_cluster_endpoint  = module.eks.eks_cluster_endpoint
   eks_cluster_ca  = module.eks.eks_cluster_ca
+
  
 
 

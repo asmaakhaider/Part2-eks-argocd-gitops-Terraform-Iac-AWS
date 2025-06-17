@@ -69,6 +69,8 @@ resource "aws_security_group" "rds_sg" {
     Name = "${var.namespace}-sg-database"
   }
 }
+
+
 ##################################################################################
 #  Création des Secrets Kubernetes pour lier mon application avec les DB de RDS
 ################################################################################
@@ -78,6 +80,9 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(var.eks_cluster_ca)
   config_path            = "~/.kube/config" # Utilise le kubeconfig local
 }
+
+
+
 # Crée le namespace
 resource "kubernetes_namespace" "eshop" {
   provider = kubernetes.local
@@ -88,6 +93,8 @@ resource "kubernetes_namespace" "eshop" {
 
 
 }
+
+#########################################################
 resource "kubernetes_secret" "eshop_db_connection_strings" {
   provider = kubernetes.local
   metadata {
@@ -96,22 +103,11 @@ resource "kubernetes_secret" "eshop_db_connection_strings" {
   }
 
   data = {
-    ConnectionStrings__CatalogDB = base64encode(
-      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=catalog_db;Username=${var.database_user};Password=${var.database_password};"
-    )
-    ConnectionStrings__OrderingDB = base64encode(
-      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=ordering_db;Username=${var.database_user};Password=${var.database_password};"
-    )
-    ConnectionStrings__IdentityDB = base64encode(
-      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=identity_db;Username=${var.database_user};Password=${var.database_password};"
-    )
-    ConnectionStrings__WebhooksDB = base64encode(
-      "Host=${aws_db_instance.postgresql.address};Port=5432;Database=webhooks_db;Username=${var.database_user};Password=${var.database_password};"
-    )
+    ConnectionStrings__CatalogDB  = "Host=${aws_db_instance.postgresql.address};Port=5432;Database=catalog_db;Username=${var.database_user};Password=${var.database_password};"
+    ConnectionStrings__OrderingDB = "Host=${aws_db_instance.postgresql.address};Port=5432;Database=ordering_db;Username=${var.database_user};Password=${var.database_password};"
+    ConnectionStrings__IdentityDB = "Host=${aws_db_instance.postgresql.address};Port=5432;Database=identity_db;Username=${var.database_user};Password=${var.database_password};"
+    ConnectionStrings__WebhooksDB = "Host=${aws_db_instance.postgresql.address};Port=5432;Database=webhooks_db;Username=${var.database_user};Password=${var.database_password};"
   }
-  
-
 
   type = "Opaque"
 }
-#########################################################

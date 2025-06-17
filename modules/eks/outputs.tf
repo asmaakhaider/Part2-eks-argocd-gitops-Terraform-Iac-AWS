@@ -38,3 +38,4 @@ output "eks_worker_iam_role_name" {
   description = "Name of the IAM role for EKS worker nodes"
   value       = aws_iam_role.eks_node_role.name
 }
+
