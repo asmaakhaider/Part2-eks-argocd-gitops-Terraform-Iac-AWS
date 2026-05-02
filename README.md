@@ -1,7 +1,9 @@
 # Introduction
 
 
-## Pourquoi intégrer un outil GitOps comme ArgoCD si l’on utilise déjà GitLab CI/CD pour le déploiement ?
+## Pourquoi intégrer un outil GitOps comme ArgoCD si l’on utilise déjà GitLab CI/CD pour le déploiement 
+
+![Architecture du projet](aws-devscops.drawio.png)
 
 Dans mon projet DevOps, j’ai mis en place une architecture où :
 
